@@ -1,0 +1,51 @@
+ const [userInfo, setUserInfo] = useState({
+    file: null,
+    filePreview: null,
+  });
+
+  const handleInputChange = (e) => {
+    setUserInfo({
+      ...userInfo,
+      file: e.target.files[0],
+      filePreview: URL.createObjectURL(e.target.files[0]),
+    });
+  };
+
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  
+    const formData = new FormData();
+    formData.append('avatar', userInfo.file);
+  
+    axios
+      .post('http://localhost:4000/api/upload', formData)
+      .then((uploadResponse) => {
+        if (uploadResponse.status !== 200) {
+          throw new Error('Failed to upload the file');
+        }
+        console.log(uploadResponse); // Log the response to inspect its structure
+        return uploadResponse.data; // Use the data property instead of calling .json()
+      })
+      .then((uploadData) => {
+        const updatedCourseData = {
+          ...courseData,
+          image_m: uploadData.imageUrl,
+        };
+  
+        axios.put(`http://localhost:8000/api/matieres/${idc}`, courseData)
+        .then(response => {
+          console.log(response.data);
+          // Handle success response
+        })
+        .catch(error => {
+          console.error(error.response.data);
+          // Handle error response
+        });
+       
+      })
+      .catch((error) => {
+        console.error(error);
+        // Handle error
+      });
+  };

@@ -1,0 +1,75 @@
+
+  const [userInfo, setUserInfo] = useState({
+    file: null,
+    filePreview: null,
+  });
+
+  const handleInputChange = (event) => {
+    setUserInfo({
+      ...userInfo,
+      file: event.target.files[0],
+      filePreview: URL.createObjectURL(event.target.files[0]),
+    });
+  };
+
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+  
+    const formData = new FormData();
+    formData.append('avatar', userInfo.file);
+  
+    try {
+      const uploadResponse = await fetch('http://localhost:4000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload the file');
+      }
+  
+      const uploadData = await uploadResponse.json();
+      console.log(uploadData);
+  
+      const response = await fetch('http://localhost:8000/api/employes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+             e_CIN:e_CIN,
+             code_CNSS:code_CNSS,
+             e_fname:e_fname,
+             e_lname:e_lname,
+             e_address:e_address,
+             e_phone:e_phone,
+             e_email:e_email,
+             password:password,
+             e_image:e_image,
+             city:city,
+             state:state,
+             type:cc,
+             e_date_nessance:e_date_nessance,
+             e_gender:e_gender,
+             id_mat:id_mat,
+        }),
+      });
+
+  
+      const data = await response.json();
+      if (response.ok) {
+        setMessage('Employee created successfully');
+        console.log(data);
+      } else {
+        setError('Error creating employee');
+        console.log('error');
+      }
+    } catch (error) {
+      console.error(error);
+      setError('Error creating employee');
+      console.log('gygyy');
+    }
+  };
+
